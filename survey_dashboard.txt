@@ -1,0 +1,1346 @@
+Survey Satisfaction Dashboard Application
+html<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Satisfaction Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1729;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0d2137 100%);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #2d6a9f;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 15px rgba(59,130,246,0.5);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .header h1 span {
+            display: block;
+            font-size: 12px;
+            font-weight: 400;
+            color: #94a3b8;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .current-date {
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: right;
+        }
+
+        /* ===== NAV ===== */
+        .nav {
+            background: #162035;
+            display: flex;
+            padding: 0 24px;
+            border-bottom: 1px solid #1e3a5f;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            padding: 14px 22px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover { color: #94a3b8; }
+        .nav-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            background: rgba(59,130,246,0.08);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, #2d6a9f, transparent);
+        }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            background: #162035;
+            border: 1px solid #1e3a5f;
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar label { font-size: 13px; color: #94a3b8; }
+        
+        .filter-bar select {
+            background: #0f1729;
+            border: 1px solid #2d6a9f;
+            color: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* ===== GRID ===== */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: #162035;
+            border: 1px solid #1e3a5f;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #2d6a9f;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 13px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        /* ===== GAUGE ===== */
+        .gauge-card {
+            background: linear-gradient(135deg, #162035 0%, #1a2840 100%);
+            border: 1px solid #1e3a5f;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .gauge-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 32px rgba(59,130,246,0.2);
+        }
+
+        .gauge-wrapper {
+            position: relative;
+            width: 200px;
+            height: 110px;
+            margin: 0 auto 10px;
+        }
+
+        .gauge-svg { width: 100%; height: 100%; }
+
+        .gauge-value-display {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .gauge-percent {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .gauge-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .gauge-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin: 6px 0 4px;
+        }
+
+        .gauge-kpi {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .gauge-kpi span {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .gauge-status {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pass { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+        .status-fail { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .status-warn { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+
+        /* ===== INTERNAL CARDS ===== */
+        .internal-card {
+            background: linear-gradient(135deg, #162035 0%, #1a2840 100%);
+            border: 1px solid #1e3a5f;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .internal-card:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 8px 32px rgba(139,92,246,0.15);
+        }
+
+        .int-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .int-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .int-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .int-score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .int-score-big {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .int-kpi-label {
+            font-size: 12px;
+            color: #64748b;
+            text-align: right;
+        }
+
+        .int-kpi-label span { color: #f59e0b; font-weight: 600; }
+
+        .progress-bar {
+            height: 6px;
+            background: #0f1729;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .int-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        /* ===== TREND CHART ===== */
+        .trend-card {
+            background: #162035;
+            border: 1px solid #1e3a5f;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .trend-chart-area {
+            position: relative;
+            height: 180px;
+            margin-top: 16px;
+        }
+
+        .trend-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-line {
+            width: 18px;
+            height: 2px;
+            border-radius: 2px;
+        }
+
+        /* ===== TABS ===== */
+        .tab-group {
+            display: flex;
+            gap: 4px;
+            background: #0f1729;
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s;
+            background: none;
+            color: #64748b;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        }
+
+        .tab-btn:hover:not(.active) { color: #94a3b8; background: #1e3a5f; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===== TABLE ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            background: #0f1729;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 11px;
+            padding: 10px 14px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table th:first-child { text-align: left; border-radius: 8px 0 0 8px; }
+        .data-table th:last-child { border-radius: 0 8px 8px 0; }
+
+        .data-table td {
+            padding: 10px 14px;
+            text-align: center;
+            border-bottom: 1px solid rgba(30,58,95,0.4);
+        }
+
+        .data-table td:first-child { text-align: left; font-weight: 500; }
+
+        .data-table tr:hover td { background: rgba(59,130,246,0.05); }
+
+        .score-cell {
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 6px;
+            padding: 4px 10px;
+        }
+
+        .score-pass { color: #10b981; }
+        .score-fail { color: #ef4444; }
+        .score-warn { color: #f59e0b; }
+        .score-na { color: #374151; }
+
+        .mom-up { color: #10b981; }
+        .mom-down { color: #ef4444; }
+        .mom-same { color: #64748b; }
+
+        /* ===== FORM ===== */
+        .form-card {
+            background: #162035;
+            border: 1px solid #1e3a5f;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(59,130,246,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .form-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-input {
+            background: #0f1729;
+            border: 1px solid #1e3a5f;
+            color: #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        .form-input.valid { border-color: #10b981; }
+        .form-input.invalid { border-color: #ef4444; }
+
+        .real-time-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+        }
+
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(59,130,246,0.5); transform: translateY(-1px); }
+
+        .btn-danger {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239,68,68,0.3);
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+        /* ===== RECORDS TABLE ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #1e3a5f;
+        }
+
+        /* ===== ANALYSIS ===== */
+        .analysis-stat {
+            text-align: center;
+        }
+
+        .analysis-stat .big-num {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .analysis-stat .sub-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .issue-card {
+            background: rgba(239,68,68,0.05);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .issue-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .issue-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: #fca5a5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .issue-score-badge {
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .issue-months {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .issue-months strong { color: #f59e0b; }
+
+        .suggestion {
+            background: rgba(245,158,11,0.08);
+            border-left: 3px solid #f59e0b;
+            padding: 8px 12px;
+            border-radius: 0 6px 6px 0;
+            font-size: 12px;
+            color: #fde68a;
+            line-height: 1.6;
+        }
+
+        /* ===== OVERVIEW CARDS ===== */
+        .overview-big-card {
+            background: linear-gradient(135deg, #162035, #1a2840);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #1e3a5f;
+        }
+
+        .overview-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+
+        .overview-value {
+            font-size: 40px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .overview-sub {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .tag-fail { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .tag-pass { background: rgba(16,185,129,0.15); color: #10b981; }
+        .tag-month { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+        /* ===== YEAR ANALYSIS ===== */
+        .year-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .year-bar-label { font-size: 13px; color: #94a3b8; width: 140px; flex-shrink: 0; }
+
+        .year-bar-track {
+            flex: 1;
+            height: 10px;
+            background: #0f1729;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .year-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .year-bar-val { font-size: 13px; font-weight: 700; width: 55px; text-align: right; }
+
+        /* ===== SCROLL ===== */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f1729; }
+        ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2d6a9f; }
+
+        /* ===== ALERT ===== */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+        .alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+
+        .no-data {
+            text-align: center;
+            padding: 48px;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        /* ===== MONTH BADGE ===== */
+        .month-chip {
+            display: inline-block;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.2);
+            color: #60a5fa;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-left">
+        <div class="logo-icon">📊</div>
+        <div>
+            <h1>Survey Satisfaction Dashboard
+                <span>ระบบวิเคราะห์ความพึงพอใจ — หน่วยงาน Survey</span>
+            </h1>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="current-date" id="currentDate"></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
+    <button class="nav-btn" onclick="showPage('report', this)">📋 รายงานรายเดือน</button>
+    <button class="nav-btn" onclick="showPage('input', this)">✏️ กรอกข้อมูล</button>
+    <button class="nav-btn" onclick="showPage('analysis', this)">🔍 วิเคราะห์ผล</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- ===== PAGE: DASHBOARD ===== -->
+    <div id="page-dashboard" class="page active">
+        
+        <div class="filter-bar">
+            <label>📅 เลือกปี:</label>
+            <select id="dash-year" onchange="renderDashboard()"></select>
+            <label>เดือน:</label>
+            <select id="dash-month" onchange="renderDashboard()">
+                <option value="all">ทั้งปี (เฉลี่ย)</option>
+            </select>
+            <span id="dash-data-count" style="font-size:12px;color:#64748b;margin-left:auto;"></span>
+        </div>
+
+        <!-- EXTERNAL -->
+        <div class="section-title">🌐 External — ผลการสำรวจ</div>
+        <div class="grid-2" style="margin-bottom:24px;">
+            <div class="gauge-card" id="gauge-enduser"></div>
+            <div class="gauge-card" id="gauge-endcall"></div>
+        </div>
+
+        <!-- INTERNAL -->
+        <div class="section-title">🏢 Internal — ผลการสำรวจ</div>
+        <div class="grid-4" style="margin-bottom:24px;" id="internal-cards"></div>
+
+        <!-- TRENDS -->
+        <div class="grid-2">
+            <div class="trend-card">
+                <div class="section-title" style="font-size:14px;">📈 แนวโน้ม External รายเดือน</div>
+                <div class="trend-chart-area"><svg class="trend-svg" id="trend-external"></svg></div>
+                <div class="chart-legend" id="legend-external"></div>
+            </div>
+            <div class="trend-card">
+                <div class="section-title" style="font-size:14px;">📈 แนวโน้ม Internal รายเดือน</div>
+                <div class="trend-chart-area"><svg class="trend-svg" id="trend-internal"></svg></div>
+                <div class="chart-legend" id="legend-internal"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: REPORT ===== -->
+    <div id="page-report" class="page">
+        <div class="filter-bar">
+            <label>📅 ปี:</label>
+            <select id="report-year" onchange="renderReport()"></select>
+        </div>
+
+        <div class="tab-group">
+            <button class="tab-btn active" onclick="showTab('tab-ext', this)">🌐 External</button>
+            <button class="tab-btn" onclick="showTab('tab-int', this)">🏢 Internal</button>
+            <button class="tab-btn" onclick="showTab('tab-all', this)">📊 ภาพรวม</button>
+        </div>
+
+        <div id="tab-ext" class="tab-content active">
+            <div class="card" style="overflow-x:auto;" id="table-external"></div>
+        </div>
+        <div id="tab-int" class="tab-content">
+            <div class="card" style="overflow-x:auto;" id="table-internal"></div>
+        </div>
+        <div id="tab-all" class="tab-content">
+            <div id="table-overview"></div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: INPUT ===== -->
+    <div id="page-input" class="page">
+        <div id="form-alert"></div>
+
+        <div class="form-card">
+            <div class="form-section-title">📅 ข้อมูลเดือน</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">ปี (Year)</label>
+                    <select class="form-input" id="f-year"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">เดือน (Month)</label>
+                    <select class="form-input" id="f-month">
+                        <option value="1">มกราคม</option><option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option><option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option><option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option><option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option><option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-section-title">🌐 External (KPI: End User ≥97% | End Call ≥90%)</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">
+                        End User (%)
+                        <span class="real-time-badge" id="badge-enduser">—</span>
+                    </label>
+                    <input type="number" class="form-input" id="f-enduser" min="0" max="100" step="0.1" placeholder="0.0 – 100.0" oninput="validateScore(this,'badge-enduser',97)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        End Call (%)
+                        <span class="real-time-badge" id="badge-endcall">—</span>
+                    </label>
+                    <input type="number" class="form-input" id="f-endcall" min="0" max="100" step="0.1" placeholder="0.0 – 100.0" oninput="validateScore(this,'badge-endcall',90)">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-section-title">🏢 Internal (KPI ≥95% ทุกงาน)</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">
+                        New Emp (BO) (%)
+                        <span class="real-time-badge" id="badge-bo">—</span>
+                    </label>
+                    <input type="number" class="form-input" id="f-bo" min="0" max="100" step="0.1" placeholder="0.0 – 100.0" oninput="validateScore(this,'badge-bo',95)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        New Emp (CSR) (%)
+                        <span class="real-time-badge" id="badge-csr">—</span>
+                    </label>
+                    <input type="number" class="form-input" id="f-csr" min="0" max="100" step="0.1" placeholder="0.0 – 100.0" oninput="validateScore(this,'badge-csr',95)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        Applicant (%)
+                        <span class="real-time-badge" id="badge-app">—</span>
+                    </label>
+                    <input type="number" class="form-input" id="f-app" min="0" max="100" step="0.1" placeholder="0.0 – 100.0" oninput="validateScore(this,'badge-app',95)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        Training (%)
+                        <span class="real-time-badge" id="badge-train">—</span>
+                    </label>
+                    <input type="number" class="form-input" id="f-train" min="0" max="100" step="0.1" placeholder="0.0 – 100.0" oninput="validateScore(this,'badge-train',95)">
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveRecord()">💾 บันทึกข้อมูล</button>
+            <button class="btn" style="background:#162035;border:1px solid #1e3a5f;color:#94a3b8;" onclick="clearForm()">🔄 ล้างฟอร์ม</button>
+        </div>
+
+        <div style="margin-top:28px;">
+            <div class="section-title">📂 ข้อมูลที่บันทึกแล้ว</div>
+            <div class="table-wrapper">
+                <table class="data-table" id="records-table">
+                    <thead>
+                        <tr>
+                            <th>ปี</th><th>เดือน</th>
+                            <th>End User</th><th>End Call</th>
+                            <th>New Emp(BO)</th><th>New Emp(CSR)</th>
+                            <th>Applicant</th><th>Training</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: ANALYSIS ===== -->
+    <div id="page-analysis" class="page">
+        <div class="filter-bar">
+            <label>📅 ปี:</label>
+            <select id="analysis-year" onchange="renderAnalysis()"></select>
+        </div>
+
+        <!-- OVERVIEW STATS -->
+        <div class="grid-4" style="margin-bottom:24px;" id="analysis-overview-cards"></div>
+
+        <div class="grid-2" style="margin-bottom:24px;">
+            <!-- External Analysis -->
+            <div class="card">
+                <div class="section-title" style="font-size:14px;">🌐 วิเคราะห์ External</div>
+                <div id="analysis-external-bars"></div>
+            </div>
+            <!-- Internal Analysis -->
+            <div class="card">
+                <div class="section-title" style="font-size:14px;">🏢 วิเคราะห์ Internal</div>
+                <div id="analysis-internal-bars"></div>
+            </div>
+        </div>
+
+        <!-- ISSUES -->
+        <div class="section-title">⚠️ จุดที่ต้องแก้ไขปรับปรุง</div>
+        <div id="analysis-issues"></div>
+    </div>
+
+</div>
+
+<script>
+// ===================================================
+//  DATA & CONFIG
+// ===================================================
+const KPI = {
+    endUser: 97.0,
+    endCall: 90.0,
+    bo:      95.0,
+    csr:     95.0,
+    app:     95.0,
+    train:   95.0,
+};
+
+const JOBS = [
+    { key:'endUser', label:'End User',     type:'external', kpi:97.0, color:'#3b82f6', icon:'👤' },
+    { key:'endCall', label:'End Call',     type:'external', kpi:90.0, color:'#06b6d4', icon:'📞' },
+    { key:'bo',      label:'New Emp (BO)', type:'internal', kpi:95.0, color:'#8b5cf6', icon:'🏢' },
+    { key:'csr',     label:'New Emp (CSR)',type:'internal', kpi:95.0, color:'#ec4899', icon:'🎧' },
+    { key:'app',     label:'Applicant',    type:'internal', kpi:95.0, color:'#10b981', icon:'📝' },
+    { key:'train',   label:'Training',     type:'internal', kpi:95.0, color:'#f59e0b', icon:'📚' },
+];
+
+const MONTHS_TH = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
+                   'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MONTHS_FULL = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                     'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+// ===== SAMPLE DATA =====
+let records = [
+    {year:2024,month:1,  endUser:97.5,endCall:91.2,bo:96.1,csr:95.8,app:97.0,train:96.5},
+    {year:2024,month:2,  endUser:96.8,endCall:89.5,bo:95.5,csr:94.2,app:96.3,train:95.0},
+    {year:2024,month:3,  endUser:97.2,endCall:90.8,bo:97.0,csr:96.0,app:95.5,train:94.8},
+    {year:2024,month:4,  endUser:98.1,endCall:92.1,bo:96.8,csr:95.3,app:96.8,train:97.2},
+    {year:2024,month:5,  endUser:96.3,endCall:88.7,bo:94.5,csr:93.8,app:95.9,train:95.5},
+    {year:2024,month:6,  endUser:97.8,endCall:91.5,bo:96.3,csr:95.6,app:97.2,train:96.0},
+    {year:2024,month:7,  endUser:98.5,endCall:93.0,bo:97.5,csr:96.2,app:98.0,train:97.5},
+    {year:2024,month:8,  endUser:96.1,endCall:89.8,bo:95.8,csr:94.5,app:96.1,train:95.8},
+    {year:2024,month:9,  endUser:97.0,endCall:90.5,bo:96.0,csr:95.0,app:96.5,train:96.2},
+    {year:2024,month:10, endUser:97.3,endCall:91.8,bo:95.2,csr:95.7,app:97.0,train:96.8},
+    {year:2024,month:11, endUser:98.0,endCall:92.5,bo:96.5,csr:96.3,app:97.5,train:97.0},
+    {year:2024,month:12, endUser:97.6,endCall:91.0,bo:96.8,csr:96.0,app:97.2,train:96.5},
+    {year:2025,month:1,  endUser:97.8,endCall:92.0,bo:96.5,csr:95.9,app:97.3,train:96.8},
+    {year:2025,month:2,  endUser:96.5,endCall:89.0,bo:95.0,csr:93.5,app:96.0,train:94.5},
+    {year:2025,month:3,  endUser:97.9,endCall:91.3,bo:96.8,csr:95.5,app:97.1,train:96.0},
+    {year:2025,month:4,  endUser:98.2,endCall:92.8,bo:97.2,csr:96.1,app:97.8,train:97.3},
+    {year:2025,month:5,  endUser:95.8,endCall:88.3,bo:94.2,csr:93.0,app:95.5,train:94.0},
+    {year:2025,month:6,  endUser:97.4,endCall:91.0,bo:96.1,csr:95.4,app:96.9,train:95.8},
+];
+
+// ===================================================
+//  UTILITY
+// ===================================================
+function getYears() {
+    const yrs = [...new Set(records.map(r=>r.year))].sort((a,b)=>a-b);
+    if (!yrs.length) yrs.push(new Date().getFullYear());
+    return yrs;
+}
+
+function getRecords(year) { return records.filter(r=>r.year===parseInt(year)); }
+
+function avg(arr) { return arr.length ? arr.reduce((s,v)=>s+v,0)/arr.length : null; }
+
+function scoreColor(val, kpi) {
+    if (val===null||val===undefined) return '#374151';
+    if (val >= kpi) return '#10b981';
+    if (val >= kpi - 2) return '#f59e0b';
+    return '#ef4444';
+}
+
+function scoreClass(val, kpi) {
+    if (val===null||val===undefined) return 'score-na';
+    if (val >= kpi) return 'score-pass';
+    if (val >= kpi - 2) return 'score-warn';
+    return 'score-fail';
+}
+
+function formatVal(v) { return (v===null||v===undefined) ? '—' : v.toFixed(1)+'%'; }
+
+function populateYearSelects() {
+    const yrs = getYears();
+    const selects = ['dash-year','report-year','f-year','analysis-year'];
+    selects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const cur = el.value;
+        el.innerHTML = '';
+        yrs.forEach(y => {
+            const o = document.createElement('option');
+            o.value = y; o.textContent = y;
+            el.appendChild(o);
+        });
+        if (cur) el.value = cur;
+        else el.value = yrs[yrs.length-1];
+    });
+}
+
+function populateMonthSelect() {
+    const el = document.getElementById('dash-month');
+    el.innerHTML = '<option value="all">ทั้งปี (เฉลี่ย)</option>';
+    for (let m=1;m<=12;m++) {
+        const o = document.createElement('option');
+        o.value = m; o.textContent = MONTHS_FULL[m];
+        el.appendChild(o);
+    }
+}
+
+// ===================================================
+//  GAUGE SVG
+// ===================================================
+function buildGauge(pct, kpi, color) {
+    const R = 80, cx = 100, cy = 95;
+    const total = Math.PI;
+    const start = { x: cx - R, y: cy };
+    const end   = { x: cx + R, y: cy };
+
+    function polarToCart(angle) {
+        return {
+            x: cx + R * Math.cos(Math.PI + angle * Math.PI),
+            y: cy + R * Math.sin(Math.PI + angle * Math.PI)
+        };
+    }
+
+    const pctClamped = Math.min(Math.max(pct||0, 0), 100);
+    const filled = pctClamped / 100;
+    const kpiFilled = kpi / 100;
+    const fillPt = polarToCart(filled);
+    const kpiPt  = polarToCart(kpiFilled);
+    const largeF = filled > 0.5 ? 1 : 0;
+    const kpiLargeF = kpiFilled > 0.5 ? 1 : 0;
+
+    const c = scoreColor(pct, kpi);
+
+    return `
+    <svg viewBox="0 0 200 100" class="gauge-svg">
+      <defs>
+        <linearGradient id="g${color.replace('#','')}" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:${color};stop-opacity:0.5"/>
+          <stop offset="100%" style="stop-color:${color};stop-opacity:1"/>
+        </linearGradient>
+      </defs>
+      <!-- BG arc -->
+      <path d="M ${start.x} ${start.y} A ${R} ${R} 0 1 1 ${end.x} ${end.y}"
+            fill="none" stroke="#1e3a5f" stroke-width="14" stroke-linecap="round"/>
+      <!-- Fill arc -->
+      ${filled > 0 ? `<path d="M ${start.x} ${start.y} A ${R} ${R} 0 ${largeF} 1 ${fillPt.x} ${fillPt.y}"
+            fill="none" stroke="url(#g${color.replace('#','')})" stroke-width="14" stroke-linecap="round"/>` : ''}
+      <!-- KPI marker -->
+      <circle cx="${kpiPt.x}" cy="${kpiPt.y}" r="5" fill="#f59e0b" stroke="#0f1729" stroke-width="2"/>
+      <!-- Glow -->
+      ${filled > 0 ? `<circle cx="${fillPt.x}" cy="${fillPt.y}" r="6" fill="${c}" opacity="0.8"/>` : ''}
+    </svg>`;
+}
+
+function renderGaugeCard(containerId, job, val) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const pct = val !== null ? val : 0;
+    const passed = val !== null && val >= job.kpi;
+    const c = scoreColor(val, job.kpi);
+    el.innerHTML = `
+        <div>${buildGauge(pct, job.kpi, job.color)}</div>
+        <div class="gauge-value-display" style="bottom:0;position:relative;margin-top:-20px;">
+            <div class="gauge-percent" style="color:${c}">${val!==null ? val.toFixed(1)+'%' : '—'}</div>
+            <div class="gauge-label">คะแนนปัจจุบัน</div>
+        </div>
+        <div class="gauge-title">${job.icon} ${job.label}</div>
+        <div class="gauge-kpi">KPI Target: <span>${job.kpi}%</span></div>
+        <div>
+            <span class="gauge-status ${passed?'status-pass':'status-fail'}">
+                ${passed ? '✓ ผ่าน KPI' : '✗ ต่ำกว่า KPI'}
+            </span>
+        </div>`;
+}
+
+// ===================================================
+//  TREND CHART
+// ===================================================
+function renderTrend(svgId, legendId, jobKeys, yearData) {
+    const svg = document.getElementById(svgId);
+    const leg = document.getElementById(legendId);
+    if (!svg) return;
+
+    const W = svg.parentElement.offsetWidth || 400;
+    const H = 160;
+    const PL = 36, PR = 12, PT = 10, PB = 24;
+    const cw = W - PL - PR, ch = H - PT - PB;
+    const months = [1,2,3,4,5,6,7,8,9,10,11,12];
+
+    let allVals = [];
+    jobKeys.forEach(k => {
+        months.forEach(m => {
+            const r = yearData.find(d=>d.month===m);
+            if (r && r[k]!==undefined && r[k]!==null) allVals.push(r[k]);
+        });
+    });
+
+    const minV = Math.max(0, Math.min(...allVals, 85) - 2);
+    const maxV = Math.min(100, Math.max(...allVals, 100) + 1);
+
+    function xPos(m) { return PL + ((m-1)/(11)) * cw; }
+    function yPos(v) { return PT + (1 - (v - minV)/(maxV - minV)) * ch; }
+
+    let html = `<svg viewBox="0 0 ${W} ${H}" style="overflow:visible;width:100%;height:${H}px;">`;
+
+    // Grid
+    for (let v = Math.ceil(minV/5)*5; v <= maxV; v+=5) {
+        const y = yPos(v);
+        html += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#1e3a5f" stroke-width="1"/>`;
+        html += `<text x="${PL-4}" y="${y+4}" text-anchor="end" fill="#475569" font-size="9">${v}</text>`;
+    }
+
+    // Month labels
+    months.forEach(m => {
+        html += `<text x="${xPos(m)}" y="${H-4}" text-anchor="middle" fill="#475569" font-size="9">${MONTHS_TH[m]}</text>`;
+    });
+
+    // KPI line(s)
+    const kpiSet = [...new Set(jobKeys.map(k => JOBS.find(j=>j.key===k)?.kpi || 95))];
+    kpiSet.forEach(kpi => {
+        const yk = yPos(kpi);
+        html += `<line x1="${PL}" y1="${yk}" x2="${W-PR}" y2="${yk}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+        html += `<text x="${W-PR+2}" y="${yk+4}" fill="#f59e0b" font-size="9">${kpi}%</text>`;
+    });
+
+    // Lines + dots
+    const colors = ['#3b82f6','#06b6d4','#8b5cf6','#ec4899','#10b981','#f59e0b'];
+    jobKeys.forEach((k, i) => {
+        const job = JOBS.find(j=>j.key===k);
+        const col = job ? job.color : colors[i];
+        let pts = [];
+        months.forEach(m => {
+            const r = yearData.find(d=>d.month===m);
+            if (r && r[k]!==undefined && r[k]!==null) pts.push({x:xPos(m), y:yPos(r[k]), v:r[k]});
+            else pts.push(null);
+        });
+
+        // Polyline
+        let d = '';
+        pts.forEach((p,idx) => {
+            if (!p) return;
+            if (!d || pts.slice(0,idx).every(x=>!x)) d += `M${p.x},${p.y}`;
+            else d += ` L${p.x},${p.y}`;
+        });
+        if (d) html += `<path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>`;
+
+        // Dots
+        pts.forEach(p => {
+            if (!p) return;
+            const isLow = p.v < (job?.kpi||95);
+            html += `<circle cx="${p.x}" cy="${p.y}" r="${isLow?5:4}" fill="${isLow?'#ef4444':col}" stroke="#0f1729" stroke-width="1.5"/>`;
+        });
+    });
+
+    html += `</svg>`;
+    svg.outerHTML = `<svg id="${svgId}" class="trend-svg" style="width:100%;height:${H}px;overflow:visible;">${html.replace(/<svg[^>]+>/,'').replace('</svg>','')}</svg>`;
+    document.getElementById(svgId).innerHTML = html.replace(/<svg[^>]+>/,'').replace('</svg>','');
+
+    // Legend
+    let legHtml = '';
+    jobKeys.forEach(k => {
+        const job = JOBS.find(j=>j.key===k);
+        legHtml += `<div class="legend-item"><div class="legend-dot" style="background:${job?.color||'#fff'}"></div>${job?.label||k}</div>`;
+    });
+    legHtml += `<div class="legend-item"><div class="legend-line" style="background:#f59e0b;border-top:2px dashed #f59e0b;"></div>KPI Target</div>`;
+    leg.innerHTML = legHtml;
+}
+
+// ===================================================
+//  DASHBOARD
+// ===================================================
+function renderDashboard() {
+    const year  = parseInt(document.getElementById('dash-year').value);
+    const month = document.getElementById('dash-month').value;
+    const data  = getRecords(year);
+
+    document.getElementById('dash-data-count').textContent = `ข้อมูล ${data.length} เดือน`;
+
+    function getVal(key) {
+        if (month === 'all') {
+            const vals = data.map(r=>r[key]).filter(v=>v!==null&&v!==undefined);
+            return vals.length ? avg(vals) : null;
+        } else {
+            const r = data.find(d=>d.month===parseInt(month));
+            return r ? r[key] : null;
+        }
+    }
+
+    // Gauges
+    renderGaugeCard('gauge-enduser', JOBS[0], getVal('endUser'));
+    renderGaugeCard('gauge-endcall', JOBS[1], getVal('endCall'));
+
+    // Internal cards
+    const intJobs = JOBS.filter(j=>j.type==='internal');
+    const ic = document.getElementById('internal-cards');
+    ic.innerHTML = intJobs.map(job => {
+        const val = getVal(job.key);
+        const c = scoreColor(val, job.kpi);
+        const pct = val !== null ? val : 0;
+        const barW = Math.min(100, (pct / 100) * 100);
+        return `
+        <div class="internal-card">
+            <div class="int-card-header">
+                <div class="int-icon" style="background:${job.color}20;color:${job.color}">${job.icon}</div>
+                <div class="int-name">${job.label}</div>
+            </div>
+            <div class="int-score-row">
+                <div class="int-score-big" style="color:${c}">${val!==null?val.toFixed(1)+'%':'—'}</div>
+                <div class="int-kpi-label">KPI<span>${job.kpi}%</span></div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:${barW}%;background:linear-gradient(to right,${job.color}88,${job.color})"></div>
+            </div>
+            <div class="int-footer">
+                <span class="gauge-status ${val!==null&&val>=job.kpi?'status-pass':'status-fail'}" style="font-size:11px;">
+                    ${val!==null?(val>=job.kpi?'✓ Pass':'✗ Fail'):'—'}
+                </span>
+                <span style="font-size:11px;color:#64748b;">${month==='all'?'เฉลี่ยทั้งปี':MONTHS_TH[parseInt(month)]}</span>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Trends
+    renderTrend('trend-external', 'legend-external', ['endUser','endCall'], data);
+    renderTrend('trend-internal', 'legend-internal', ['bo','csr','app','train'], data);
+}
+
+// ===================================================
+//  REPORT
+// ===================================================
+function renderReport() {
+    const year = parseInt(document.getElementById('report-year').value);
+    const data = getRecords(year);
+
+    // External Table
+    buildReportTable('table-external',
+        [{key:'endUser',label:'End User',kpi:97},{key:'endCall',label:'End Call',kpi:90}],
+        data, year);
+
+    // Internal Table
+    buildReportTable('table-internal',
+        [{key:'bo',label:'New Emp (BO)',kpi:95},{key:'csr',label:'New Emp (CSR)',kpi:95},
+         {key:'app',label:'Applicant',kpi:95},{key:'train',label:'Training',kpi:95}],
+        data, year);
+
+    // Overview
+    renderOverviewTab(data, year);
+}
+
+function buildReportTable(containerId, jobs, data, year) {
+    const el = document.getElementById(containerId);
+    let html = `<table class="data-table"><thead><tr>
+        <th>งาน / KPI</th>`;
+    for (let m=1;m<=12;m++) html += `<th>${MONTHS_TH[m]}</th>`;
+    html += `<th>เฉลี่ย</th></tr></thead><tbody>`;
+
+    jobs.forEach(job => {
+        const vals = [];
+        html += `<tr><td><strong>${job.label}</strong><span style="font-size:10px;color:#f59e0b;">KPI ≥${job.kpi}%</span></td>`;
+        for (let m=1;m<=12;m++) {
+            const r = data.find(d=>d.month===m);
+            const v = r ? r[job.key] : null;
+            vals.push(v);
+            const prev = m>1 ? data.find(d=>d.month===m-1) : null;
+            const prevV = prev ? prev[job.key] : null;
+            let mom = '';
+            if (v!==null && prevV!==null) {
+                const diff = v - prevV;
+                mom = diff > 0 ? `<span class="mom-up" style="font-size:9px;">▲${diff.toFixed(1)}</span>`
+                    : diff < 0 ? `<span class="mom-down" style="font-size:9px;">▼${Math.abs(diff).toFixed(1)}</span>`
+                    : `<span class="mom-same" style="font-size:9px;">—</span>`;
+            }
+            const cls = scoreClass(v, job.kpi);
+            html += `<td><span class="${cls}">${v!==null?v.toFixed(1):'—'}</span>${mom}</td>`;
+        }
+        const defined = vals.filter(v=>v
